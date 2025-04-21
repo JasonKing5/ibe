@@ -10,7 +10,7 @@ function filterJwtPayload(user) {
 }
 
 export const generateAccessToken = (user) => {
-  return jwt.sign(filterJwtPayload(user), ACCESS_TOKEN_SECRET, { expiresIn: '1m' })
+  return jwt.sign(filterJwtPayload(user), ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
 }
 
 export const generateRefreshToken = (user) => {
