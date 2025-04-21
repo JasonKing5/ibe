@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { response, success, error, StatusCodes } = require('../utils/responseUtil');
 const { sendResetPasswordEmail } = require('../services/emailService.js');
+const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../utils/jwt.js');
 
 // 用户注册
 exports.register = async (req, res) => {
@@ -62,14 +63,12 @@ exports.login = async (req, res) => {
     }
 
     // 生成令牌
-    const token = jwt.sign(
-      { id: user.id },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    const accessToken = generateAccessToken(user)
+    const refreshToken = generateRefreshToken(user)
 
     return success(res, '登录成功', {
-      token,
+      token: accessToken,
+      refreshToken,
       user: {
         id: user.id,
         username: user.username,
@@ -82,6 +81,20 @@ exports.login = async (req, res) => {
     return error(res, StatusCodes.SERVER_ERROR, '服务器错误');
   }
 };
+
+exports.refresh = (req, res) => {
+  const { refreshToken } = req.body
+  if (!refreshToken) return error(res, StatusCodes.INVALID_PARAMS, '缺少刷新令牌')
+
+  try {
+    const user = verifyRefreshToken(refreshToken)
+    const newAccessToken = generateAccessToken(user)
+    return success(res, '刷新成功', { token: newAccessToken })
+  } catch (err) {
+    console.error('刷新错误:', err);
+    return error(res, StatusCodes.TOKEN_INVALID, '无效的刷新令牌')
+  }
+}
 
 // 用户重置密码
 exports.resetPassword = async (req, res) => {
@@ -98,11 +111,7 @@ exports.resetPassword = async (req, res) => {
     }
 
     // 生成一个临时 token 或 reset 链接，这里简化为随机字符串
-    const resetToken = jwt.sign(
-      { id: user.id },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    const resetToken = generateRefreshToken(user)
     const resetUrl = `${process.env.RESET_PASSWORD_URL}?email=${email}&token=${resetToken}`
 
     await sendResetPasswordEmail(email, resetUrl)
@@ -128,7 +137,7 @@ exports.updatePassword = async (req, res) => {
 
     // 验证 token
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = verifyRefreshToken(token)
       const user = await User.findById(decoded.id);
       if (!user) {
         return error(res, StatusCodes.INVALID_PARAMS, '无效的重置 token')

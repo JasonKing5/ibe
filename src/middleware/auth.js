@@ -1,6 +1,7 @@
-const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { response } = require('../utils/responseUtil');
+const { verifyAccessToken } = require('../utils/jwt.js');
+const { StatusCodes } = require('../constants/statusCodes');
 
 const auth = async (req, res, next) => {
   try {
@@ -10,7 +11,7 @@ const auth = async (req, res, next) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = verifyAccessToken(token);
     
     const user = await User.findById(decoded.id);
     if (!user) {
