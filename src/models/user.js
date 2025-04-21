@@ -45,6 +45,14 @@ const update = async (id, userData) => {
   return result.affectedRows > 0;
 };
 
+const updatePassword = async (id, password) => {
+  const [result] = await pool.execute(
+    'UPDATE users SET password = ? WHERE id = ?',
+    [password, id]
+  );
+  return result.affectedRows > 0;
+};
+
 const deleteUser = async (id) => {
   const [result] = await pool.execute(
     'DELETE FROM users WHERE id = ?',
@@ -64,6 +72,7 @@ module.exports = {
   findById,
   create,
   update,
+  updatePassword,
   delete: deleteUser,
   findAll
 };

@@ -11,4 +11,7 @@ router.post('/login', authController.login);
 // 重置密码路由
 router.post('/reset', authController.resetPassword);
 
+// 更新密码路由
+router.put('/update/password', authController.updatePassword);
+
 module.exports = router;

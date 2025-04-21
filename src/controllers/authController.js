@@ -98,14 +98,51 @@ exports.resetPassword = async (req, res) => {
     }
 
     // 生成一个临时 token 或 reset 链接，这里简化为随机字符串
-    const resetToken = Math.random().toString(36).substr(2)
-
-    const resetUrl = `${process.env.RESET_PASSWORD_URL}?token=${resetToken}`
+    const resetToken = jwt.sign(
+      { id: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    const resetUrl = `${process.env.RESET_PASSWORD_URL}?email=${email}&token=${resetToken}`
 
     await sendResetPasswordEmail(email, resetUrl)
     return success(res, '重置密码邮件已发送，请查收！')
   } catch (error) {
     console.error("发送邮件失败:", error)
     return error(res, StatusCodes.SERVER_ERROR, '发送邮件失败')
+  }
+};
+
+exports.updatePassword = async (req, res) => {
+  try {
+    const { email, token, password } = req.body
+    if (!email || !token || !password) {
+      return error(res, StatusCodes.INVALID_PARAMS, '所有字段都是必填的')
+    }
+
+    // 查找用户
+    const user = await User.findByEmail(email)
+    if (!user) {
+      return error(res, StatusCodes.NOT_LOGGED_IN, '该用户不存在')
+    }
+
+    // 验证 token
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id);
+      if (!user) {
+        return error(res, StatusCodes.INVALID_PARAMS, '无效的重置 token')
+      }
+    } catch (err) {
+      return error(res, StatusCodes.INVALID_PARAMS, '无效的重置 token')
+    }
+
+    // 更新密码
+    const hashedPassword = await bcrypt.hash(password, 10)
+    await User.updatePassword(user.id, hashedPassword)
+    return success(res, '密码重置成功')
+  } catch (err) {
+    console.error('重置密码错误:', err)
+    return error(res, StatusCodes.SERVER_ERROR, '服务器错误')
   }
 };
