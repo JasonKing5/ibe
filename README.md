@@ -34,25 +34,31 @@ jasonking-server/
 │   │   ├── userController.js   # 用户控制器
 │   │   ├── transactionController.js # 交易控制器
 │   │   ├── taskController.js   # 任务控制器
-│   │   └── habitController.js  # 习惯控制器
+│   │   ├── habitController.js  # 习惯控制器
+│   │   └── authController.js   # 认证控制器
 │   ├── middleware/         # 中间件
-│   │   └── auth.js        # 认证中间件
-│   ├── models/            # 数据模型
-│   │   ├── user.js       # 用户模型
-│   │   ├── transaction.js # 交易模型
-│   │   ├── task.js       # 任务模型
-│   │   └── habit.js      # 习惯模型
-│   └── routes/           # 路由
-│       ├── userRoutes.js # 用户路由
-│       ├── authRoutes.js # 认证路由
-│       ├── transactionRoutes.js # 交易路由
-│       ├── taskRoutes.js # 任务路由
-│       └── habitRoutes.js # 习惯路由
-├── scripts/              # 脚本文件
-│   └── init-db.js       # 数据库初始化脚本
-├── .env                # 环境变量配置
-├── package.json       # 项目配置和依赖
-└── README.md         # 项目文档
+│   │   └── auth.js         # 认证中间件
+│   ├── models/             # 数据模型
+│   │   ├── user.js         # 用户模型
+│   │   ├── transaction.js  # 交易模型
+│   │   ├── task.js         # 任务模型
+│   │   └── habit.js        # 习惯模型
+│   ├── routes/             # 路由
+│   │   ├── userRoutes.js       # 用户路由
+│   │   ├── authRoutes.js       # 认证路由
+│   │   ├── transactionRoutes.js # 交易路由
+│   │   ├── taskRoutes.js       # 任务路由
+│   │   └── habitRoutes.js      # 习惯路由
+│   └── utils/              # 工具库
+│       ├── jwt.js          # JWT 相关工具
+│       ├── formatUtil.js   # 通用格式化工具
+│       ├── responseUtil.js # 统一响应工具
+│       └── validators.js   # 参数校验工具
+├── scripts/                # 脚本文件
+│   └── init-db.js          # 数据库初始化脚本
+├── .env                    # 环境变量配置
+├── package.json            # 项目配置和依赖
+└── README.md               # 项目文档
 ```
 
 ## 快速开始
